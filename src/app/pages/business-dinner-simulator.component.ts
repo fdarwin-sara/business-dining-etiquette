@@ -22,6 +22,7 @@ export class BusinessDinnerSimulatorComponent {
   readonly exploredHotspots = signal<string[]>([]);
   readonly activeHotspot = signal<string | null>(null);
   readonly hotspotClosing = signal(false);
+  readonly conversationMemory = signal<string[]>([]);
   readonly currentScenario = computed(() => this.scenarios[this.sceneIndex()]);
   readonly currentScene = computed(() => this.scenes[this.sceneIndex()]);
   readonly progress = computed(() => ((this.sceneIndex() + 1) / this.scenarios.length) * 100);
@@ -39,6 +40,7 @@ export class BusinessDinnerSimulatorComponent {
     this.activeHotspot.set(null);
     this.hotspotClosing.set(false);
     this.clearHotspotCloseTimer();
+    this.conversationMemory.set([]);
   }
 
   chooseAction(index: number): void {
@@ -48,6 +50,7 @@ export class BusinessDinnerSimulatorComponent {
 
     this.selectedAnswer.set(index);
     this.decisions.update((decisions) => [...decisions, index === this.currentScenario().answer]);
+    this.conversationMemory.update((memory) => [...memory, this.currentScenario().responseMemory[index]]);
   }
 
   exploreHotspot(label: string): void {
@@ -107,15 +110,7 @@ export class BusinessDinnerSimulatorComponent {
   }
 
   answerClass(index: number): string {
-    if (this.selectedAnswer() === null) {
-      return '';
-    }
-
-    if (index === this.currentScenario().answer) {
-      return 'correct';
-    }
-
-    return index === this.selectedAnswer() ? 'incorrect' : '';
+    return index === this.selectedAnswer() ? 'selected' : '';
   }
 
   response(): string {
@@ -125,9 +120,66 @@ export class BusinessDinnerSimulatorComponent {
   }
 
   responseDialogue(): string {
-    return this.selectedAnswer() === this.currentScenario().answer
-      ? this.currentScene().correctResponse
-      : this.currentScene().incorrectResponse;
+    const answer = this.selectedAnswer();
+    return answer === null
+      ? this.currentScene().dialogue
+      : this.currentScenario().responseReactions[answer];
+  }
+
+  isProfessionalChoice(): boolean {
+    return this.selectedAnswer() === this.currentScenario().answer;
+  }
+
+  answerStatus(): string {
+    return this.isProfessionalChoice() ? '✓ PROFESSIONAL CHOICE' : '✕ UNPROFESSIONAL CHOICE';
+  }
+
+  answerTitle(): string {
+    return this.isProfessionalChoice() ? 'Well done, Mr. Sara!' : 'Not quite, Mr. Sara.';
+  }
+
+  answerGuidance(): string {
+    const answer = this.selectedAnswer();
+    return answer === null ? '' : this.currentScenario().responseGuidance[answer];
+  }
+
+  scenarioStatus(index: number): 'professional' | 'needs-improvement' | 'not-completed' {
+    const decision = this.decisions()[index];
+    if (decision === undefined) {
+      return 'not-completed';
+    }
+
+    return decision ? 'professional' : 'needs-improvement';
+  }
+
+  scenarioStatusLabel(index: number): string {
+    const status = this.scenarioStatus(index);
+    if (status === 'professional') return 'Professional choice';
+    if (status === 'needs-improvement') return 'Needs improvement';
+    return 'Not completed';
+  }
+
+  memoryLine(): string {
+    const memory = this.conversationMemory();
+    return memory.length > 1 ? memory[memory.length - 1] : '';
+  }
+
+  professionalCommunication(): string {
+    return this.decisions()[2] ? 'Strong' : 'Developing';
+  }
+
+  diningEtiquette(): string {
+    const decisions = this.decisions();
+    return decisions[1] && decisions[3] ? 'Strong' : 'Developing';
+  }
+
+  socialAwareness(): string {
+    const decisions = this.decisions();
+    return decisions[0] && decisions[3] ? 'Strong' : 'Developing';
+  }
+
+  networkingBehavior(): string {
+    return this.decisions()[2] ? 'Strong' : 'Developing';
   }
 
   performanceMessage(): string {

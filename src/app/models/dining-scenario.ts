@@ -5,4 +5,7 @@ export interface DiningScenario {
   answer: number;
   explanation: string;
   recommendation: string;
+  responseReactions: string[];
+  responseMemory: string[];
+  responseGuidance: string[];
 }

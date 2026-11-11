@@ -14,14 +14,14 @@
     </div>
   } @else if (!complete()) {
     <div class="scene">
-      <div class="scene-visual" [class.failed]="selectedAnswer() !== null && selectedAnswer() !== currentScenario().answer" [class.successful]="selectedAnswer() !== null && selectedAnswer() === currentScenario().answer">
+      <div class="scene-visual" [class.failed]="selectedAnswer() !== null && !isProfessionalChoice()" [class.successful]="selectedAnswer() !== null && isProfessionalChoice()">
         <img [src]="currentScene().image" [alt]="currentScene().imageAlt" (error)="hideBrokenImage($event)">
         <div class="visual-fallback"></div>
         <div class="scene-shade"></div>
-        @if (selectedAnswer() !== null && selectedAnswer() !== currentScenario().answer) {
+        @if (selectedAnswer() !== null && !isProfessionalChoice()) {
           <div class="failed-stamp" aria-label="Failed">FAILED</div>
         } @else if (selectedAnswer() !== null) {
-          <div class="success-indicator" aria-label="Correct decision">✓</div>
+          <div class="success-indicator" aria-label="Professional choice">✓</div>
         }
         <div class="perspective-tag">FIRST-PERSON VIEW · MR. DARWIN SARA</div>
         <div class="scene-caption"><span>Scene 0{{ sceneIndex() + 1 }}</span><span>{{ currentScene().eyebrow }}</span></div>
@@ -54,10 +54,13 @@
           <p class="scene-eyebrow">{{ currentScene().eyebrow }}</p>
           <div class="dialogue"><span class="quote-mark">“</span><p>{{ currentScene().dialogue }}</p></div>
           <p class="atmosphere">{{ currentScene().atmosphere }}</p>
+          @if (memoryLine()) {
+            <p class="conversation-memory"><span>Earlier in the evening</span>{{ memoryLine() }}</p>
+          }
           @if (sceneIndex() === 1 && exploredHotspots().length < (currentScene().hotspots?.length ?? 0)) {
             <p class="explore-prompt">Explore the glowing points on the table, then choose how you respond.</p>
           }
-          <h2>{{ currentScenario().situation }}</h2>
+          <p class="conversation-prompt">How would you respond?</p>
           <div class="action-grid">
             @for (option of currentScenario().options; track i; let i = $index) {
               <button type="button" class="action-card" [class]="answerClass(i)" [disabled]="selectedAnswer() !== null" (click)="chooseAction(i)">
@@ -67,10 +70,19 @@
           </div>
           @if (selectedAnswer() !== null) {
             <div class="decision-response" [class.good]="selectedAnswer() === currentScenario().answer">
-              <div class="response-icon">{{ selectedAnswer() === currentScenario().answer ? '✓' : '!' }}</div>
-              <div><strong>{{ responseDialogue() }}</strong><p>{{ response() }}</p><p><b>Etiquette insight:</b> {{ currentScenario().explanation }}</p><p><b>Recommended behavior:</b> {{ currentScenario().recommendation }}</p></div>
+              <div class="response-icon">“</div>
+              <div><strong>{{ responseDialogue() }}</strong><p class="learning-label">A moment to remember</p><p>{{ currentScenario().responseMemory[selectedAnswer()!] }}</p></div>
             </div>
-            <button class="continue-button" type="button" (click)="continueExperience()">{{ sceneIndex() === scenarios.length - 1 ? 'Complete the evening' : 'Continue the evening' }} <span>→</span></button>
+            <div class="answer-assessment" [class.professional]="isProfessionalChoice()" [class.needs-improvement]="!isProfessionalChoice()">
+              <span class="assessment-status">{{ answerStatus() }}</span>
+              <h3>{{ answerTitle() }}</h3>
+              <p>{{ answerGuidance() }}</p>
+            </div>
+            <div class="learning-panel">
+              <p><b>Professional insight</b>{{ currentScenario().explanation }}</p>
+              <p><b>For next time</b>{{ currentScenario().recommendation }}</p>
+            </div>
+            <button class="continue-button" type="button" (click)="continueExperience()">{{ sceneIndex() === scenarios.length - 1 ? 'Say goodbye' : 'Continue the conversation' }} <span>→</span></button>
           }
         </div>
       </div>
@@ -82,14 +94,25 @@
         <p class="experience-kicker">The evening has come to a close</p>
         <h1>Thank You,<br><em>Mr. Darwin Sara.</em></h1>
         <div class="final-score"><span>{{ score() }}</span><small>/ 100</small></div>
-        <p class="performance-message">{{ performanceMessage() }}</p>
+        <p class="performance-message">Thank you for joining us tonight, Mr. Sara. It was a pleasure having you at dinner.</p>
         <p class="ending-close">Your business dinner has come to an end.</p>
+        <div class="performance-summary">
+          <div><span>Professional communication</span><strong>{{ professionalCommunication() }}</strong></div>
+          <div><span>Dining etiquette</span><strong>{{ diningEtiquette() }}</strong></div>
+          <div><span>Social awareness</span><strong>{{ socialAwareness() }}</strong></div>
+          <div><span>Networking behavior</span><strong>{{ networkingBehavior() }}</strong></div>
+        </div>
         <div class="ending-summary">
           <div><strong>{{ correctCount() }} / 5</strong><span>appropriate decisions</span></div>
           <div><strong>{{ scenarios.length - correctCount() }}</strong><span>decisions to review</span></div>
         </div>
         <div class="summary-list">
-          @for (scenario of scenarios; track scenario.title; let i = $index) { <div><span [class.missed]="decisions()[i] === false">{{ decisions()[i] ? '✓' : '!' }}</span><p>{{ scenario.title }}</p><small>{{ decisions()[i] ? 'Professional choice' : 'Review this moment' }}</small></div> }
+          @for (scenario of scenarios; track scenario.title; let i = $index) {
+            <div [class.professional-result]="scenarioStatus(i) === 'professional'" [class.needs-improvement-result]="scenarioStatus(i) === 'needs-improvement'">
+              <span>{{ scenarioStatus(i) === 'professional' ? '✓' : scenarioStatus(i) === 'needs-improvement' ? '✕' : '—' }}</span>
+              <p>{{ scenario.title }}</p><small>{{ scenarioStatusLabel(i) }}</small>
+            </div>
+          }
         </div>
         <p class="ending-recommendations"><b>Three ways to keep growing</b><br>Arrive early and prepared · Give the table your full attention · Close the evening with a gracious thank-you</p>
         <p class="final-message">Remember: Professionalism is not only demonstrated through what you say, but also through how you behave.</p>
