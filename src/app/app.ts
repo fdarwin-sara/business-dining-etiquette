@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { QUIZ_QUESTIONS } from './data/quiz-questions';
+import { VIDEO_LESSONS } from './data/video-lessons';
 import { BusinessDinnerSimulatorComponent } from './pages/business-dinner-simulator.component';
+import { VideoLessonComponent } from './components/video-lesson.component';
 
 @Component({
   selector: 'app-root',
-  imports: [BusinessDinnerSimulatorComponent, CommonModule, RouterOutlet, RouterLink],
+  imports: [BusinessDinnerSimulatorComponent, VideoLessonComponent, CommonModule, RouterOutlet, RouterLink],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
@@ -23,6 +25,7 @@ export class App {
   readonly mobileMenu = signal(false);
   readonly currentQuestion = computed(() => QUIZ_QUESTIONS[this.quizIndex()]);
   readonly progress = computed(() => ((this.quizIndex() + 1) / QUIZ_QUESTIONS.length) * 100);
+  readonly videoLessons = VIDEO_LESSONS;
 
   constructor() {
     this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
