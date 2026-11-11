@@ -1,0 +1,100 @@
+<section class="experience">
+  @if (!started()) {
+    <div class="welcome-scene">
+      <img class="welcome-image" src="https://images.pexels.com/photos/6284908/pexels-photo-6284908.jpeg?auto=compress&cs=tinysrgb&w=2000" alt="Restaurant staff welcoming a guest in a warmly lit dining room" (error)="hideBrokenImage($event)">
+      <div class="welcome-overlay"></div>
+      <div class="welcome-content">
+        <p class="experience-kicker">Your First Business Dinner · The Art of Business Dining</p>
+        <h1>Good evening,<br><em>Mr. Darwin Sara.</em></h1>
+        <p class="welcome-message">Welcome to The Grand Dining Experience. We have been expecting you. Your table is ready, and your business partners are waiting inside.</p>
+        <p class="welcome-submessage">Tonight is an opportunity to demonstrate your professionalism, confidence, and business dining etiquette.</p>
+        <button class="experience-button" type="button" (click)="startExperience()">Enter the restaurant <span>↗</span></button>
+      </div>
+      <div class="welcome-footer"><span>01 — 05</span><span>Immersive learning experience</span></div>
+    </div>
+  } @else if (!complete()) {
+    <div class="scene">
+      <div class="scene-visual" [class.failed]="selectedAnswer() !== null && selectedAnswer() !== currentScenario().answer" [class.successful]="selectedAnswer() !== null && selectedAnswer() === currentScenario().answer">
+        <img [src]="currentScene().image" [alt]="currentScene().imageAlt" (error)="hideBrokenImage($event)">
+        <div class="visual-fallback"></div>
+        <div class="scene-shade"></div>
+        @if (selectedAnswer() !== null && selectedAnswer() !== currentScenario().answer) {
+          <div class="failed-stamp" aria-label="Failed">FAILED</div>
+        } @else if (selectedAnswer() !== null) {
+          <div class="success-indicator" aria-label="Correct decision">✓</div>
+        }
+        <div class="perspective-tag">FIRST-PERSON VIEW · MR. DARWIN SARA</div>
+        <div class="scene-caption"><span>Scene 0{{ sceneIndex() + 1 }}</span><span>{{ currentScene().eyebrow }}</span></div>
+        <div class="character-card"><span class="character-dot"></span><div><strong>{{ currentScene().hostName }}</strong><small>{{ currentScene().hostRole }}</small></div></div>
+        @if (sceneIndex() === 1) {
+          <div class="hotspots" aria-label="Explore the table setting">
+            @for (hotspot of currentScene().hotspots; track hotspot.label) {
+              <button type="button" class="hotspot" [class.explored]="isHotspotExplored(hotspot.label)" [style.top]="hotspot.top" [style.left]="hotspot.left" (click)="exploreHotspot(hotspot.label)" [attr.aria-label]="'Explore ' + hotspot.label"><span>+</span></button>
+            }
+            @if (activeHotspot(); as hotspotLabel) {
+              @for (hotspot of currentScene().hotspots; track hotspot.label) {
+                @if (hotspot.label === hotspotLabel) {
+                  <div class="hotspot-detail" [class.closing]="hotspotClosing()" role="dialog" [attr.aria-label]="hotspot.label + ' information'">
+                    <button class="hotspot-close" type="button" aria-label="Close information" (click)="closeHotspot()">×</button>
+                    <strong>{{ hotspot.label }}</strong><span>{{ hotspot.detail }}</span>
+                  </div>
+                }
+              }
+            }
+          </div>
+        }
+      </div>
+      <div class="scene-panel">
+        <div class="scene-progress">
+          <div class="progress-label"><span>THE BUSINESS DINING EXPERIENCE</span><b>0{{ sceneIndex() + 1 }} / 05</b></div>
+          <div class="progress-line"><span [style.width.%]="progress()"></span></div>
+          <div class="progress-steps"><span [class.current]="sceneIndex() === 0">Arrival</span><span [class.current]="sceneIndex() === 1">Table</span><span [class.current]="sceneIndex() === 2">Conversation</span><span [class.current]="sceneIndex() === 3">Meal</span><span [class.current]="sceneIndex() === 4">Close</span></div>
+        </div>
+        <div class="scene-copy">
+          <p class="scene-eyebrow">{{ currentScene().eyebrow }}</p>
+          <div class="dialogue"><span class="quote-mark">“</span><p>{{ currentScene().dialogue }}</p></div>
+          <p class="atmosphere">{{ currentScene().atmosphere }}</p>
+          @if (sceneIndex() === 1 && exploredHotspots().length < (currentScene().hotspots?.length ?? 0)) {
+            <p class="explore-prompt">Explore the glowing points on the table, then choose how you respond.</p>
+          }
+          <h2>{{ currentScenario().situation }}</h2>
+          <div class="action-grid">
+            @for (option of currentScenario().options; track i; let i = $index) {
+              <button type="button" class="action-card" [class]="answerClass(i)" [disabled]="selectedAnswer() !== null" (click)="chooseAction(i)">
+                <span class="action-number">0{{ i + 1 }}</span><span class="action-text">{{ option }}</span><span class="action-arrow">↗</span>
+              </button>
+            }
+          </div>
+          @if (selectedAnswer() !== null) {
+            <div class="decision-response" [class.good]="selectedAnswer() === currentScenario().answer">
+              <div class="response-icon">{{ selectedAnswer() === currentScenario().answer ? '✓' : '!' }}</div>
+              <div><strong>{{ responseDialogue() }}</strong><p>{{ response() }}</p><p><b>Etiquette insight:</b> {{ currentScenario().explanation }}</p><p><b>Recommended behavior:</b> {{ currentScenario().recommendation }}</p></div>
+            </div>
+            <button class="continue-button" type="button" (click)="continueExperience()">{{ sceneIndex() === scenarios.length - 1 ? 'Complete the evening' : 'Continue the evening' }} <span>→</span></button>
+          }
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="ending-scene">
+      <div class="ending-backdrop"></div>
+      <div class="ending-content">
+        <p class="experience-kicker">The evening has come to a close</p>
+        <h1>Thank You,<br><em>Mr. Darwin Sara.</em></h1>
+        <div class="final-score"><span>{{ score() }}</span><small>/ 100</small></div>
+        <p class="performance-message">{{ performanceMessage() }}</p>
+        <p class="ending-close">Your business dinner has come to an end.</p>
+        <div class="ending-summary">
+          <div><strong>{{ correctCount() }} / 5</strong><span>appropriate decisions</span></div>
+          <div><strong>{{ scenarios.length - correctCount() }}</strong><span>decisions to review</span></div>
+        </div>
+        <div class="summary-list">
+          @for (scenario of scenarios; track scenario.title; let i = $index) { <div><span [class.missed]="decisions()[i] === false">{{ decisions()[i] ? '✓' : '!' }}</span><p>{{ scenario.title }}</p><small>{{ decisions()[i] ? 'Professional choice' : 'Review this moment' }}</small></div> }
+        </div>
+        <p class="ending-recommendations"><b>Three ways to keep growing</b><br>Arrive early and prepared · Give the table your full attention · Close the evening with a gracious thank-you</p>
+        <p class="final-message">Remember: Professionalism is not only demonstrated through what you say, but also through how you behave.</p>
+        <div class="ending-actions"><button class="experience-button gold" type="button" (click)="replayExperience()">Experience again <span>↻</span></button><a class="return-link" routerLink="/home">Return to main website <span>→</span></a></div>
+      </div>
+    </div>
+  }
+</section>

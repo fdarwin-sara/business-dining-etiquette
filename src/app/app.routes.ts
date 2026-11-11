@@ -8,6 +8,7 @@ export const routes: Routes = [
   { path: 'before-dinner', component: RoutePageComponent },
   { path: 'table-etiquette', component: RoutePageComponent },
   { path: 'conversation', component: RoutePageComponent },
+  { path: 'business-dinner-simulator', component: RoutePageComponent },
   { path: 'quiz', component: RoutePageComponent },
   { path: 'survey', component: RoutePageComponent },
   { path: 'references', component: RoutePageComponent },

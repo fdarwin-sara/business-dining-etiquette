@@ -9,12 +9,15 @@
     <a routerLink="/before-dinner" routerLinkActive="active">Before dinner</a>
     <a routerLink="/table-etiquette" routerLinkActive="active">At the table</a>
     <a routerLink="/conversation" routerLinkActive="active">Conversation</a>
+    <a routerLink="/business-dinner-simulator" routerLinkActive="active">Dining Simulator</a>
     <a routerLink="/quiz" routerLinkActive="active" class="nav-cta">Take the quiz</a>
   </nav>
 </header>
 
 <main>
-  @if (page() === '/home') {
+  @if (page() === '/business-dinner-simulator') {
+    <app-business-dinner-simulator></app-business-dinner-simulator>
+  } @else if (page() === '/home') {
     <section class="hero">
       <div class="hero-copy"><p class="eyebrow">A student's guide to professional dining etiquette</p><h1>The art of<br><em>business dining.</em></h1><p class="lead">Confidence starts at the table. Learn the essential skills to navigate professional dining experiences with confidence, courtesy, and professionalism.</p><div class="actions"><a class="button button-gold" routerLink="/basics">Explore the guide <span>↗</span></a><a class="text-link" routerLink="/quiz">Test your knowledge <span>→</span></a></div></div>
       <div class="hero-image"><img src="https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=1400&q=85" alt="Elegant restaurant table prepared for dinner"><div class="image-note">01 <span>•</span> Confidence at the table</div></div>
@@ -50,5 +53,5 @@
   }
 </main>
 
-<footer><div class="footer-brand"><span class="wordmark-mark">AB</span><p>The Art of<br><b>Business Dining</b></p></div><p>A student's guide to professional dining etiquette.</p><nav><a routerLink="/survey">Student survey</a><a routerLink="/references">References</a><a href="https://www.arizona.edu/" target="_blank" rel="noopener noreferrer">University of Arizona ↗</a></nav><small>© 2026 The Art of Business Dining · SP 18 SIE 415-515</small></footer>
+<footer><div class="footer-brand"><span class="wordmark-mark">AB</span><p>The Art of<br><b>Business Dining</b></p></div><p>A student's guide to professional dining etiquette.</p><nav><a routerLink="/survey">Student survey</a><a routerLink="/references">References</a><a href="https://www.arizona.edu/" target="_blank" rel="noopener noreferrer">University of Arizona ↗</a></nav><small>© 2026 The Art of Business Dining · Created by Darwin Sara</small></footer>
 <router-outlet></router-outlet>

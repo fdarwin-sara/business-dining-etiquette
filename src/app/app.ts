@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { QUIZ_QUESTIONS } from './data/quiz-questions';
+import { BusinessDinnerSimulatorComponent } from './pages/business-dinner-simulator.component';
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, RouterOutlet, RouterLink],
+  imports: [BusinessDinnerSimulatorComponent, CommonModule, RouterOutlet, RouterLink],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
