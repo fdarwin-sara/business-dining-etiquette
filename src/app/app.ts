@@ -26,6 +26,20 @@ export class App {
   readonly currentQuestion = computed(() => QUIZ_QUESTIONS[this.quizIndex()]);
   readonly progress = computed(() => ((this.quizIndex() + 1) / QUIZ_QUESTIONS.length) * 100);
   readonly videoLessons = VIDEO_LESSONS;
+  readonly surveyImportance = signal('');
+  readonly surveyNapkin = signal('');
+  readonly surveyUtensils = signal('');
+  readonly surveyTopics = signal('');
+  readonly surveyListening = signal('');
+  readonly surveyOrdering = signal('');
+  readonly surveyConfidence = signal('');
+  readonly surveyLearning = signal('');
+  readonly surveySubmitted = signal(false);
+  readonly surveyAttempted = signal(false);
+  readonly surveyProgress = computed(() => [
+    this.surveyImportance(), this.surveyNapkin(), this.surveyUtensils(), this.surveyTopics(),
+    this.surveyListening(), this.surveyOrdering(), this.surveyConfidence(), this.surveyLearning(),
+  ].filter((answer) => answer.trim().length > 0).length);
 
   constructor() {
     this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
@@ -56,5 +70,10 @@ export class App {
     return result >= 7 ? 'You are ready to bring confidence and courtesy to the table.' :
       result >= 5 ? 'You have a strong foundation. Review a few details before your next dinner.' :
         'Keep practicing. A little preparation goes a long way in a professional setting.';
+  }
+  submitSurvey(event: Event): void {
+    event.preventDefault();
+    this.surveyAttempted.set(true);
+    if (this.surveyProgress() === 8) this.surveySubmitted.set(true);
   }
 }
